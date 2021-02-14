@@ -1,5 +1,5 @@
 var audioBoosterStyle = `#audioBoosterElement[type=range] {
-    margin-left: 16px;
+    margin-left: 4px;
     margin-right: 16px;
     -webkit-appearance: none;
     width: 100px;
