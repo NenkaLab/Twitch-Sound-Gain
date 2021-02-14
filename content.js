@@ -1,4 +1,4 @@
-var audioBoosterStyle = audioBoosterStyle || `.audio-booster[type=range] {
+var audioBoosterStyle = audioBoosterStyle || `#audioBoosterElement[type=range] {
 	margin-left: 16px;
 	margin-right: 16px;
     -webkit-appearance: none;
@@ -9,11 +9,11 @@ var audioBoosterStyle = audioBoosterStyle || `.audio-booster[type=range] {
     border-radius: 0;
 }
 
-.audio-booster[type=range]:focus {
+#audioBoosterElement[type=range]:focus {
     outline: none;
 }
 
-.audio-booster[type=range]::-webkit-slider-thumb {
+#audioBoosterElement[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 16px;
     height: 16px;
@@ -22,14 +22,20 @@ var audioBoosterStyle = audioBoosterStyle || `.audio-booster[type=range] {
     cursor: pointer;
 }
 
-.audio-booster[type=range]::-moz-range-thumb {
+#audioBoosterElement[type=range]::-moz-range-thumb {
     -webkit-appearance: none;
     width: 16px;
     height: 16px;
     background: #fff;
     border-radius:50%;
     cursor: pointer;
-}`;
+}
+
+#audioBoosterValueElement {
+    width: 50px;
+    text-align: center;
+}
+`;
 
 function saveBoosterData(value) {
     if (localStorage != undefined) {
@@ -62,10 +68,10 @@ if (headDDDDDD.children["audioBoosterStyleElement"] == undefined) {
 if (controlGroupStart.children["audioBoosterElement"] == undefined) {
     if (controlGroupStart.children["audioBoosterValueElement"] == undefined) {
         audioBoosterValueElement.id = "audioBoosterValueElement";
+        audioBoosterValueElement.innerText = getBoosterData()+"%";
         controlGroupStart.appendChild(audioBoosterValueElement)
     }
     audioBoosterElement.id = "audioBoosterElement";
-    audioBoosterElement.className = "audio-booster";
     audioBoosterElement.type = "range";
     audioBoosterElement.value = getBoosterData();
     audioBoosterElement.min = "1";
@@ -88,6 +94,7 @@ function boosterUpdate(e) {
 	let value = e.target.value/10;
     let slideValue = Math.trunc(value);
 	abGainNode.gain.value = value;
+    audioBoosterValueElement.innerText = value.toString()+"%";
     audioBoosterElement.style.background = `linear-gradient(to right, white 0%, white ${slideValue}%, #8e8e8e ${slideValue}%, #8e8e8e 100%)`;
 	if (abSTimer != null) clearTimeout(abSTimer);
 	abSTimer = setTimeout(function() {
