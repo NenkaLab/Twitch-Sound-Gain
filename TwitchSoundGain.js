@@ -1,4 +1,3 @@
-
 // ==UserScript==
 // @name        TwitchSoundGain
 // @namespace   TwitchSoundGain
