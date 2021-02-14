@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name        Twitch-Sound-Gain
 // @namespace   Twitch-Sound-Gain
-// @version     0.0.2
+// @version     0.0.3
 // @author      NenkaLab
 // @description 트위치 비디오 사운드를 증폭 시킵니다. / Amplifies the twitch video sound(?).
 // @icon        https://www.twitch.tv/favicon.ico
-// @supportURL  https://github.com/NenkaLab/TwitchSoundGain/issues
-// @homepageURL https://github.com/NenkaLab/TwitchSoundGain/
-// @downloadURL https://raw.githubusercontent.com/NenkaLab/TwitchSoundGain/main/Twitch-Sound-Gain.user.js
-// @updateURL   https://raw.githubusercontent.com/NenkaLab/TwitchSoundGain/main/Twitch-Sound-Gain.user.js
+// @supportURL  https://github.com/NenkaLab/Twitch-Sound-Gain/issues
+// @homepageURL https://github.com/NenkaLab/Twitch-Sound-Gain/
+// @downloadURL https://raw.githubusercontent.com/NenkaLab/Twitch-Sound-Gain/main/Twitch-Sound-Gain.user.js
+// @updateURL   https://raw.githubusercontent.com/NenkaLab/Twitch-Sound-Gain/main/Twitch-Sound-Gain.user.js
 // @include     *://*.twitch.tv/*
 // @require     https://greasemonkey.github.io/gm4-polyfill/gm4-polyfill.js
 // @run-at      document-start
