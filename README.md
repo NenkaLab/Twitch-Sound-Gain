@@ -1,4 +1,4 @@
-# TwitchSoundGain (UserScript)
+# Twitch-Sound-Gain (UserScript)
 트위치 비디오 사운드를 증폭 시킵니다. / Amplifies the twitch video sound(?).
 
 0.1 ~ 100 까지 있습니다. / There are from 0.1 to 100.
