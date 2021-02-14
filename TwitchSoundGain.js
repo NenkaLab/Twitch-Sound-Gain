@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name        TwitchSoundGain
 // @namespace   TwitchSoundGain
-// @version     0.0.1
+// @version     0.0.2
 // @author      NenkaLab
 // @description 트위치 비디오 사운드를 증폭 시킵니다. / Amplifies the twitch video sound(?).
 // @icon        https://www.twitch.tv/favicon.ico
@@ -112,7 +112,7 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
                 audioBoosterElement.removeEventListener("input", boosterUpdate);
             }
 
-            audioBoosterCtx = audioBoosterCtx || new AudioContext();
+            audioBoosterCtx = audioBoosterCtx || new (window.AudioContext || window.webkitAudioContext)();
             abSource = abSource || audioBoosterCtx.createMediaElementSource(targetVideo);
             abGainNode = abGainNode || audioBoosterCtx.createGain();
             var abSTimer = null;
