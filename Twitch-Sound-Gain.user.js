@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Twitch-Sound-Gain
 // @namespace   Twitch-Sound-Gain
-// @version     0.0.6
+// @version     0.0.7
 // @author      NenkaLab
 // @description 트위치 비디오 사운드를 증폭 시킵니다. / Amplifies the twitch video sound(?).
 // @icon        https://www.twitch.tv/favicon.ico
@@ -88,7 +88,7 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
         var room;
 
         var pushState = history.pushState;
-        history.pushState = function () {
+        history.pushState = async function () {
             pushState.apply(history, arguments);
             room = window.location.pathname;
             abConsole("ROOM"+room);
