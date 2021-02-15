@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Twitch-Sound-Gain
 // @namespace   Twitch-Sound-Gain
-// @version     0.0.8
+// @version     0.0.9
 // @author      NenkaLab
 // @description 트위치 비디오 사운드를 증폭 시킵니다. / Amplifies the twitch video sound(?).
 // @icon        https://www.twitch.tv/favicon.ico
@@ -87,18 +87,17 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
         var targetVideo;
         var room;
 
-        var pushState = history.pushState;
-        history.pushState = async function () {
-            pushState.apply(history, arguments);
+        async function updateRoom() {
             room = window.location.pathname;
             abConsole("ROOM"+room);
             if (audioBoosterValueElement != null) getData("booster_value"+room, 1).then(v => {audioBoosterValueElement.innerText = v+"%"});
             if (audioBoosterElement != null) getData("booster_value"+room, 1).then(v => {audioBoosterElement.value = v*10});
             if (abGainNode != null) getData("booster_value"+room, 1).then(v => {abGainNode.gain.value = v});
-        };
+        }
 
         async function aBoosterInit() {
             abConsole("START_INIT");
+            await updateRoom();
             controlGroupStart = controlGroupStart || document.querySelector(".player-controls__left-control-group.tw-justify-content-start");
             headDDDDDD = headDDDDDD || document.getElementsByTagName("head")[0];
             audioBoosterValueElement = audioBoosterValueElement || document.createElement("span");
@@ -151,6 +150,12 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
             targetVideo = document.getElementsByTagName("video")[0];
             if (targetVideo != null) await aBoosterInit();
         });
+
+        var pushState = history.pushState;
+        history.pushState = async function () {
+            pushState.apply(history, arguments);
+            await updateRoom();
+        };
 
         abConsole("END");
     })();
