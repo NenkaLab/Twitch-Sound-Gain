@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Twitch-Sound-Gain
 // @namespace   Twitch-Sound-Gain
-// @version     0.0.15
+// @version     0.0.16
 // @author      NenkaLab
 // @description 트위치 비디오 사운드를 증폭 시킵니다. / Amplifies the twitch video sound(?).
 // @icon        https://www.twitch.tv/favicon.ico
@@ -24,6 +24,14 @@
 // ==/UserScript==
 /* eslint-disable no-undef */
 if (window.TWITCH_SOUND_GAIN === undefined) {
+    if (HTMLMediaElement.prototype.playing === undefined) {
+        Object.defineProperty(HTMLMediaElement.prototype, 'playing', {
+            get: function(){
+                return !!(this.currentTime > 0 && !this.paused && !this.ended && this.readyState > 2);
+            }
+        });
+    }
+
     function abConsole(value, force = false, showToast = false) {
         if (force || unsafeWindow.SHOW_LOG) console.log("[TSG]  "+value.toString());
         if (showToast) {
@@ -139,6 +147,10 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
                 switch(roomName[1]) {
                     case 'video':
                     case 'videos':
+                        if (roomName[2] == "clip") {
+                            abConsole("Not work on clip page", false, true);
+                            return;
+                        }
                         room = "=" + document.querySelector(".channel-info-content .tw-align-items-center.tw-flex > a").getAttribute("href").substring(1);
                         break;
                     default:
@@ -217,8 +229,9 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
 
         async function checkVideo() {
             targetVideo = document.getElementsByTagName("video")[0];
-            if (targetVideo != null) await aBoosterInit();
-            else abConsole("NO_VIDEO");
+            if (targetVideo != null) {
+                await aBoosterInit();
+            } else abConsole("NO_VIDEO");
         }
 
         window.addEventListener ("load", async function() {
