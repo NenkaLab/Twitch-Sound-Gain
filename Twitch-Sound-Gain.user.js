@@ -151,7 +151,7 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
                         break;
                     default:
                         if (roomName[2] == "clip") {
-                            abConsole("Not work on clip page", false, true);
+                            abConsole("Not work on clip page", true, true);
                             return;
                         }
                         room = "=" + roomName[1];
@@ -160,7 +160,7 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
                 nextInit();
             } catch(e) {
                 if (e.message.indexOf("getAttribute")!=-1) {
-                    abConsole("Fail get room name... RETRY (delay 3s)", false, true);
+                    abConsole("Fail get room name... RETRY (delay 3s)", true, true);
                     setTimeout(async function() {
                         await aBoosterInit();
                     }, 3000);
