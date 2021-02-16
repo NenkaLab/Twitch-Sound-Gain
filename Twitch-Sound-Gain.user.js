@@ -19,6 +19,7 @@
 // @grant       GM_getValue
 // @grant       GM.getValue
 // @grant       GM_registerMenuCommand
+// @grant       GM.registerMenuCommand
 // @grant       unsafeWindow
 // ==/UserScript==
 /* eslint-disable no-undef */
@@ -39,8 +40,8 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
             return (typeof GM.setValue === "function" ? await GM.setValue(name, val) : val);
         };
 
-        if (typeof GM_registerMenuCommand === "function") {
-            GM_registerMenuCommand("Show Logs", function () {
+        if (typeof GM.registerMenuCommand === "function") {
+            await GM.registerMenuCommand("Show Logs", async function () {
                 unsafeWindow.SHOW_LOG = !unsafeWindow.SHOW_LOG;
                 await saveData("show_log_ab", unsafeWindow.SHOW_LOG);
                 if(unsafeWindow.SHOW_LOG){
