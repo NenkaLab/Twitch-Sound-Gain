@@ -147,13 +147,13 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
                 switch(roomName[1]) {
                     case 'video':
                     case 'videos':
+                        room = "=" + document.querySelector(".channel-info-content .tw-align-items-center.tw-flex > a").getAttribute("href").substring(1);
+                        break;
+                    default:
                         if (roomName[2] == "clip") {
                             abConsole("Not work on clip page", false, true);
                             return;
                         }
-                        room = "=" + document.querySelector(".channel-info-content .tw-align-items-center.tw-flex > a").getAttribute("href").substring(1);
-                        break;
-                    default:
                         room = "=" + roomName[1];
                 }
                 abConsole("ROOM" + room);
