@@ -221,20 +221,14 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
             else abConsole("NO_VIDEO");
         }
 
-        var pageLoaded = false;
-
         window.addEventListener ("load", async function() {
-            pageLoaded = true;
             await checkVideo();
         });
 
         var pushState = history.pushState;
         history.pushState = async function () {
             pushState.apply(history, arguments);
-            if (pageLoaded) {
-                await checkVideo();
-                pageLoaded = false;
-            }
+            await checkVideo();
         };
 
         abConsole("END");
