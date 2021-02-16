@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Twitch-Sound-Gain
 // @namespace   Twitch-Sound-Gain
-// @version     0.0.14
+// @version     0.0.15
 // @author      NenkaLab
 // @description 트위치 비디오 사운드를 증폭 시킵니다. / Amplifies the twitch video sound(?).
 // @icon        https://www.twitch.tv/favicon.ico
@@ -24,8 +24,24 @@
 // ==/UserScript==
 /* eslint-disable no-undef */
 if (window.TWITCH_SOUND_GAIN === undefined) {
-    function abConsole(value, force = false) {
+    function abConsole(value, force = false, showToast = false) {
         if (force || unsafeWindow.SHOW_LOG) console.log("[TSG]  "+value.toString());
+        if (showToast) {
+            let body = document.getElementsByTagName("body")[0];
+            let toast = document.createElement("div");
+            toast.innerText = value;
+            document.querySelectorAll(".ab-toast").forEach(function(e) {
+                e.style.bottom = (parseInt(e.style.bottom) + 50)+"px";
+            })
+            toast.className = "ab-toast";
+            toast.addEventListener('click', function() {
+                body.removeChild(toast);
+            });
+            body.appendChild(toast);
+            setTimeout(function(b, e) {
+                b.removeChild(e);
+            }, 2000, body, toast);
+        }
     }
     (async () => {
         unsafeWindow.TWITCH_SOUND_GAIN = true;
@@ -45,10 +61,10 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
                 unsafeWindow.SHOW_LOG = !unsafeWindow.SHOW_LOG;
                 await saveData("show_log_ab", unsafeWindow.SHOW_LOG);
                 if(unsafeWindow.SHOW_LOG){
-                    abConsole("Enable Logs", true);
+                    abConsole("Enable Logs", true, true);
                 }
                 else {
-                    abConsole("Disable Logs", true);
+                    abConsole("Disable Logs", true, true);
                 }
             });
         }
@@ -89,6 +105,16 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
             width: 50px;
             text-align: center;
         }
+        .ab-toast {
+            position: fixed;
+            left: 24px;
+            bottom: 24px;
+            z-index: 9999999;
+            text-align: center;
+            padding: 8px 8px;
+            background: rgb(118, 118, 118);
+            color: white;
+        }
         `;
 
         if (typeof GM.addStyle === "function") {
@@ -107,22 +133,33 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
         var targetVideo;
         var room;
 
-        async function updateRoom() {
-            let roomName = window.location.pathname.split("/");
-            switch(roomName[1]) {
-                case 'video':
-                case 'videos':
-                    room = "=" + document.querySelector(".channel-info-content .tw-align-items-center.tw-flex > a").getAttribute("href").substring(1);
-                    break;
-                default:
-                    room = "=" + roomName[1];
+        async function aBoosterInit() {
+            try {
+                let roomName = window.location.pathname.split("/");
+                switch(roomName[1]) {
+                    case 'video':
+                    case 'videos':
+                        room = "=" + document.querySelector(".channel-info-content .tw-align-items-center.tw-flex > a").getAttribute("href").substring(1);
+                        break;
+                    default:
+                        room = "=" + roomName[1];
+                }
+                abConsole("ROOM" + room);
+                nextInit();
+            } catch(e) {
+                if (e.message.indexOf("getAttribute")!=-1) {
+                    abConsole("Fail get room name... RETRY (delay 3s)", false, true);
+                    setTimeout(async function() {
+                        await aBoosterInit();
+                    }, 3000);
+                } else {
+                    throw e;
+                }
             }
-            abConsole("ROOM" + room);
         }
 
-        async function aBoosterInit() {
+        async function nextInit() {
             abConsole("START_INIT");
-            await updateRoom();
 
             targetVideo.crossOrigin = "anonymous";
 
@@ -184,14 +221,20 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
             else abConsole("NO_VIDEO");
         }
 
+        var pageLoaded = false;
+
         window.addEventListener ("load", async function() {
+            pageLoaded = true;
             await checkVideo();
         });
 
         var pushState = history.pushState;
         history.pushState = async function () {
             pushState.apply(history, arguments);
-            await checkVideo();
+            if (pageLoaded) {
+                await checkVideo();
+                pageLoaded = false;
+            }
         };
 
         abConsole("END");
