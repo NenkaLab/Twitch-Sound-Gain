@@ -161,7 +161,7 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
         async function nextInit() {
             abConsole("START_INIT");
 
-            targetVideo.crossOrigin = "anonymous";
+            //targetVideo.crossOrigin = "anonymous";
 
             controlGroupStart = document.querySelector(".player-controls__left-control-group.tw-justify-content-start");
             if (controlGroupStart == null || controlGroupStart == undefined) {
