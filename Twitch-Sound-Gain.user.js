@@ -112,12 +112,12 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
             switch(roomName[1]) {
                 case 'video':
                 case 'videos':
-                    room = "="+document.querySelector(".channel-info-content .tw-align-items-center.tw-flex > a > h1").parentElement.getAttribute("href").substring(1);
+                    room = "=" + document.querySelector(".channel-info-content .tw-align-items-center.tw-flex > a").getAttribute("href").substring(1);
                     break;
                 default:
-                    room = "="+roomName[1];
+                    room = "=" + roomName[1];
             }
-            abConsole("ROOM"+room);
+            abConsole("ROOM" + room);
         }
 
         async function aBoosterInit() {
