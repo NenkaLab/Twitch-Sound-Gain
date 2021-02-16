@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Twitch-Sound-Gain
 // @namespace   Twitch-Sound-Gain
-// @version     0.0.11
+// @version     0.0.12
 // @author      NenkaLab
 // @description 트위치 비디오 사운드를 증폭 시킵니다. / Amplifies the twitch video sound(?).
 // @icon        https://www.twitch.tv/favicon.ico
@@ -27,6 +27,8 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
     }
     (async () => {
         unsafeWindow.TWITCH_SOUND_GAIN = true;
+        unsafeWindow.AUDIO_BOOSTER_ELEMENT = "audioBoosterElement";
+        unsafeWindow.AUDIO_BOOSTER_VALUE_ELEMENT = "audioBoosterValueElement";
         abConsole("START");
         var audioBoosterStyle = `#audioBoosterElement[type=range] {
             margin-left: 2px;
@@ -95,20 +97,24 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
         async function aBoosterInit() {
             abConsole("START_INIT");
             await updateRoom();
-            controlGroupStart = controlGroupStart || document.querySelector(".player-controls__left-control-group.tw-justify-content-start");
-            headDDDDDD = headDDDDDD || document.getElementsByTagName("head")[0];
-            audioBoosterValueElement = audioBoosterValueElement || document.createElement("span");
-            audioBoosterElement = audioBoosterElement || document.createElement("input");
+            controlGroupStart = document.querySelector(".player-controls__left-control-group.tw-justify-content-start");
+            if (controlGroupStart == null || controlGroupStart == undefined) {
+                abConsole("NO_VIDEO");
+                return;
+            }
+            headDDDDDD = document.getElementsByTagName("head")[0];
 
-            if (controlGroupStart.children["audioBoosterElement"] == undefined) {
+            if (controlGroupStart.children[unsafeWindow.AUDIO_BOOSTER_ELEMENT] == undefined) {
                 abConsole("INIT_ABE");
-                if (controlGroupStart.children["audioBoosterValueElement"] == undefined) {
+                if (controlGroupStart.children[unsafeWindow.AUDIO_BOOSTER_VALUE_ELEMENT] == undefined) {
                     abConsole("INIT_ABVE");
-                    audioBoosterValueElement.id = "audioBoosterValueElement";
+                    audioBoosterValueElement = document.createElement("span");
+                    audioBoosterValueElement.id = unsafeWindow.AUDIO_BOOSTER_VALUE_ELEMENT;
                     audioBoosterValueElement.innerText = await getData("booster_value"+room, 1)+"%";
                     controlGroupStart.appendChild(audioBoosterValueElement)
                 }
-                audioBoosterElement.id = "audioBoosterElement";
+                audioBoosterElement = document.createElement("input");
+                audioBoosterElement.id = unsafeWindow.AUDIO_BOOSTER_ELEMENT;
                 audioBoosterElement.type = "range";
                 audioBoosterElement.value = await getData("booster_value"+room, 1)*10;
                 audioBoosterElement.min = "1";
