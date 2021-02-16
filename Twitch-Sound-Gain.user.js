@@ -30,8 +30,8 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
             let body = document.getElementsByTagName("body")[0];
             let toast = document.createElement("div");
             toast.innerText = value;
-            document.querySelectorAll(".ab-toast").forEach(function(e) {
-                e.style.bottom = (parseInt(e.style.bottom) + 50)+"px";
+            document.querySelectorAll(".ab-toast").forEach(function(e, i, a) {
+                e.style.marginBottom = (50*(a.length-i))+"px";
             })
             toast.className = "ab-toast";
             toast.addEventListener('click', function() {
