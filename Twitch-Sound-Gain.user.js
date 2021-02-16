@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Twitch-Sound-Gain
 // @namespace   Twitch-Sound-Gain
-// @version     0.0.12
+// @version     0.0.13
 // @author      NenkaLab
 // @description 트위치 비디오 사운드를 증폭 시킵니다. / Amplifies the twitch video sound(?).
 // @icon        https://www.twitch.tv/favicon.ico
@@ -18,17 +18,42 @@
 // @grant       GM.setValue
 // @grant       GM_getValue
 // @grant       GM.getValue
+// @grant       GM_registerMenuCommand
 // @grant       unsafeWindow
 // ==/UserScript==
 /* eslint-disable no-undef */
 if (window.TWITCH_SOUND_GAIN === undefined) {
-    function abConsole(value) {
-        console.log("[TSG]  "+value.toString());
+    function abConsole(value, force = false) {
+        if (force || unsafeWindow.SHOW_LOG) console.log("[TSG]  "+value.toString());
     }
     (async () => {
         unsafeWindow.TWITCH_SOUND_GAIN = true;
         unsafeWindow.AUDIO_BOOSTER_ELEMENT = "audioBoosterElement";
         unsafeWindow.AUDIO_BOOSTER_VALUE_ELEMENT = "audioBoosterValueElement";
+        unsafeWindow.SHOW_LOG = false;
+
+        var getData = async function (name, val) {
+            return (typeof GM.getValue === "function" ? await GM.getValue(name, val) : val);
+        };
+        var saveData = async function (name, val) {
+            return (typeof GM.setValue === "function" ? await GM.setValue(name, val) : val);
+        };
+
+        if (typeof GM_registerMenuCommand === "function") {
+            GM_registerMenuCommand("Show Logs", function () {
+                unsafeWindow.SHOW_LOG = !unsafeWindow.SHOW_LOG;
+                await saveData("show_log_ab", unsafeWindow.SHOW_LOG);
+                if(unsafeWindow.SHOW_LOG){
+                    abConsole("Enable Logs", true);
+                }
+                else {
+                    abConsole("Disable Logs", true);
+                }
+            });
+        }
+
+        unsafeWindow.SHOW_LOG = await getData("show_log_ab", false);
+
         abConsole("START");
         var audioBoosterStyle = `#audioBoosterElement[type=range] {
             margin-left: 2px;
@@ -72,15 +97,7 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
             abConsole("FAIL_ADD_STYLE");
         }
 
-        var getData = async function (name, val) {
-            return (typeof GM.getValue === "function" ? await GM.getValue(name, val) : val);
-        };
-        var saveData = async function (name, val) {
-            return (typeof GM.setValue === "function" ? await GM.setValue(name, val) : val);
-        };
-
         var controlGroupStart;
-        var headDDDDDD;
         var audioBoosterValueElement;
         var audioBoosterElement;
         var audioBoosterCtx;
@@ -90,19 +107,28 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
         var room;
 
         async function updateRoom() {
-            room = "="+window.location.pathname.split("/")[1];
+            let roomName = window.location.pathname.split("/");
+            switch(roomName[1]) {
+                case 'video':
+                    room = "="+document.querySelector(".channel-info-content .tw-align-items-center.tw-flex > a > h1").parentElement.getAttribute("href").substring(1);
+                    break;
+                default:
+                    room = "="+roomName[1];
+            }
             abConsole("ROOM"+room);
         }
 
         async function aBoosterInit() {
             abConsole("START_INIT");
             await updateRoom();
+
+            targetVideo.crossOrigin = "anonymous";
+
             controlGroupStart = document.querySelector(".player-controls__left-control-group.tw-justify-content-start");
             if (controlGroupStart == null || controlGroupStart == undefined) {
-                abConsole("NO_VIDEO");
+                abConsole("NO_CONTROL");
                 return;
             }
-            headDDDDDD = document.getElementsByTagName("head")[0];
 
             if (controlGroupStart.children[unsafeWindow.AUDIO_BOOSTER_ELEMENT] == undefined) {
                 abConsole("INIT_ABE");
@@ -130,6 +156,7 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
             var abSTimer = null;
 
             abGainNode.gain.value = await getData("booster_value"+room, 1);
+            abConsole("GAIN_VALUE="+abGainNode.gain.value.toString());
             try{abSource.connect(abGainNode);}catch(e){}
             try{abGainNode.connect(audioBoosterCtx.destination);}catch(e){}
 
@@ -149,16 +176,20 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
             abConsole("END_INIT");
         }
 
-        window.addEventListener ("load", async function() {
+        async function checkVideo() {
             targetVideo = document.getElementsByTagName("video")[0];
             if (targetVideo != null) await aBoosterInit();
+            else abConsole("NO_VIDEO");
+        }
+
+        window.addEventListener ("load", async function() {
+            await checkVideo();
         });
 
         var pushState = history.pushState;
         history.pushState = async function () {
             pushState.apply(history, arguments);
-            targetVideo = document.getElementsByTagName("video")[0];
-            if (targetVideo != null) await aBoosterInit();
+            await checkVideo();
         };
 
         abConsole("END");
