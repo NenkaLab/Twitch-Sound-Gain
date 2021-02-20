@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Twitch-Sound-Gain
 // @namespace   Twitch-Sound-Gain
-// @version     0.0.17
+// @version     0.1.0
 // @author      NenkaLab
 // @description 트위치 비디오 사운드를 증폭 시킵니다. / Amplifies the twitch video sound(?).
 // @icon        https://www.twitch.tv/favicon.ico
@@ -32,23 +32,29 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
         });
     }
 
-    function abConsole(value, force = false, showToast = false) {
-        if (force || unsafeWindow.SHOW_LOG) console.log("[TSG]  "+value.toString());
-        if (showToast) {
-            let body = document.getElementsByTagName("body")[0];
-            let toast = document.createElement("div");
-            toast.innerText = value;
-            document.querySelectorAll(".ab-toast").forEach(function(e, i, a) {
-                e.style.marginBottom = (50*(a.length-i))+"px";
-            })
-            toast.className = "ab-toast";
-            toast.addEventListener('click', function() {
-                body.removeChild(toast);
-            });
-            body.appendChild(toast);
-            setTimeout(function(b, e) {
-                b.removeChild(e);
-            }, 2000, body, toast);
+    function abToast(value, color = {back:null, text:null}) {
+        color = {back:color.back??"#767676", text:color.text??"#FFFFFF"};
+        let body = document.getElementsByTagName("body")[0];
+        let toast = document.createElement("div");
+        toast.innerText = "[TSG]  " + value;
+        document.querySelectorAll(".ab-toast").forEach(function(e, i, a) {
+            e.style.marginBottom = (e.style.height*(a.length-i))+"px";
+        })
+        toast.className = "ab-toast";
+        toast.addEventListener('click', function() {
+            body.removeChild(toast);
+        });
+        toast.style.background = color.back;
+        toast.style.color = color.text;
+        body.appendChild(toast);
+        setTimeout(function(b, e) {
+            b.removeChild(e);
+        }, 5000, body, toast);
+    }
+
+    function abConsole(value, force = false) {
+        if (force || unsafeWindow.SHOW_LOG) {
+            console.log("[TSG]  "+value.toString());
         }
     }
     (async () => {
@@ -69,10 +75,10 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
                 unsafeWindow.SHOW_LOG = !unsafeWindow.SHOW_LOG;
                 await saveData("show_log_ab", unsafeWindow.SHOW_LOG);
                 if(unsafeWindow.SHOW_LOG){
-                    abConsole("Enable Logs", true, true);
+                    abConsole("Enable Logs", true);
                 }
                 else {
-                    abConsole("Disable Logs", true, true);
+                    abConsole("Disable Logs", true);
                 }
             });
         }
@@ -120,8 +126,6 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
             z-index: 9999999;
             text-align: center;
             padding: 8px 8px;
-            background: rgb(118, 118, 118);
-            color: white;
         }
         `;
 
@@ -141,7 +145,10 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
         var targetVideo;
         var room;
 
+        var noCRetry = 0;
+
         async function aBoosterInit() {
+            noCRetry = 0;
             try {
                 let roomName = window.location.pathname.split("/");
                 let host = location.hostname;
@@ -152,7 +159,8 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
                         break;
                     default:
                         if (roomName[2] == "clip" || host.startsWith("clip")) {
-                            abConsole("Not work on clip page", true, true);
+                            abConsole("NOT_WORK_CLIP_PAGE", true);
+                            abToast("Not work on clip page", {back:"#992828"});
                             return;
                         }
                         room = "=" + roomName[1];
@@ -161,7 +169,8 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
                 nextInit();
             } catch(e) {
                 if (e.message.indexOf("getAttribute")!=-1) {
-                    abConsole("Fail get room name... RETRY (delay 3s)", true, true);
+                    abConsole("FAIL_GET_ROOM_NAME", true);
+                    abToast("Fail get room name... RETRY (delay 3s)", {back:"#c99a22"});
                     setTimeout(async function() {
                         await aBoosterInit();
                     }, 3000);
@@ -178,7 +187,19 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
 
             controlGroupStart = document.querySelector(".player-controls__left-control-group.tw-justify-content-start");
             if (controlGroupStart == null || controlGroupStart == undefined) {
-                abConsole("NO_CONTROL");
+                if (noCRetry >= 5) {
+                    abConsole("NO_CONTROLLER", true);
+                    abToast("No controller found 5 times. \nPlease refresh the page.", {back:"#992828"});
+                    return;
+                }
+                let re = 4-noCRetry;
+                let ti = 4*noCRetry;
+                abConsole("NO_CONTROLLER RETRY "+ti+"S. "+(re>0?"("+re+" times remaining)":""), true);
+                abToast("The controller cannot be found. Retry after "+ti+" seconds. "+(re>0?"("+re+" times remaining)":""), {back:"#c99a22"});
+                setTimeout(async function() {
+                    noCRetry++;
+                    await nextInit();
+                }, 5000*noCRetry);
                 return;
             }
 
