@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Twitch-Sound-Gain
 // @namespace   Twitch-Sound-Gain
-// @version     0.0.16
+// @version     0.0.17
 // @author      NenkaLab
 // @description 트위치 비디오 사운드를 증폭 시킵니다. / Amplifies the twitch video sound(?).
 // @icon        https://www.twitch.tv/favicon.ico
@@ -144,13 +144,14 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
         async function aBoosterInit() {
             try {
                 let roomName = window.location.pathname.split("/");
+                let host = location.hostname;
                 switch(roomName[1]) {
                     case 'video':
                     case 'videos':
                         room = "=" + document.querySelector(".channel-info-content .tw-align-items-center.tw-flex > a").getAttribute("href").substring(1);
                         break;
                     default:
-                        if (roomName[2] == "clip") {
+                        if (roomName[2] == "clip" || host.startsWith("clip")) {
                             abConsole("Not work on clip page", true, true);
                             return;
                         }
