@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name        Twitch-Sound-Gain
 // @namespace   Twitch-Sound-Gain
-// @version     0.2.0
+// @version     0.3.0
 // @author      NenkaLab
 // @description 트위치 비디오 사운드를 증폭 시킵니다. / Amplifies the twitch video sound(?).
-// @icon        https://www.twitch.tv/favicon.ico
+// @icon         https://www.google.com/s2/favicons?domain=twitch.tv
 // @supportURL  https://github.com/NenkaLab/Twitch-Sound-Gain/issues
 // @homepageURL https://github.com/NenkaLab/Twitch-Sound-Gain/
 // @downloadURL https://raw.githubusercontent.com/NenkaLab/Twitch-Sound-Gain/main/Twitch-Sound-Gain.user.js
@@ -155,7 +155,7 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
                 switch(roomName[1]) {
                     case 'video':
                     case 'videos':
-                        room = "=" + document.querySelector(".channel-info-content .tw-align-items-center.tw-flex > a").getAttribute("href").substring(1);
+                        room = "=" + document.querySelector(".channel-info-content div[aria-label] a").getAttribute("href").substring(1);
                         break;
                     default:
                         if (roomName[2] == "clip" || host.startsWith("clip")) {
@@ -185,8 +185,8 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
 
             //targetVideo.crossOrigin = "anonymous";
 
-            controlGroupStart = document.querySelector(".player-controls__left-control-group");
-            if (controlGroupStart == null || controlGroupStart == undefined) {
+            controlGroupStart = document.querySelectorAll(".player-controls__left-control-group")[1] ?? document.querySelectorAll(".player-controls__left-control-group")[0];
+            if (controlGroupStart == null) {
                 if (noCRetry >= 5) {
                     abConsole("NO_CONTROLLER", true);
                     abToast("No controller found 5 times. \nPlease refresh the page.", {back:"#992828"});
@@ -256,7 +256,7 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
             } else abConsole("NO_VIDEO");
         }
 
-        window.addEventListener ("load", async function() {
+        window.addEventListener("load", async function() {
             await checkVideo();
         });
 
@@ -267,5 +267,7 @@ if (window.TWITCH_SOUND_GAIN === undefined) {
         };
 
         abConsole("END");
+        if (unsafeWindow) unsafeWindow.checkVideoAG = checkVideo;
+        else if (window) window.checkVideoAG = checkVideo;
     })();
 }
