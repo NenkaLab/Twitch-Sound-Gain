@@ -9,7 +9,7 @@
 // @homepageURL https://github.com/NenkaLab/Twitch-Sound-Gain/
 // @downloadURL https://raw.githubusercontent.com/NenkaLab/Twitch-Sound-Gain/main/Twitch-Sound-Gain.user.js
 // @updateURL   https://raw.githubusercontent.com/NenkaLab/Twitch-Sound-Gain/main/Twitch-Sound-Gain.user.js
-// @include     *://*.twitch.tv/*
+// @match       *://*.twitch.tv/*
 // @require     https://greasemonkey.github.io/gm4-polyfill/gm4-polyfill.js
 // @run-at      document-start
 // @grant       GM_addStyle
